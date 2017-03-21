@@ -74,7 +74,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
         testsArray = null;
 
 
-        ArrayList<String> InValidSchedules = new ArrayList<String>();
+        HashMap<String, String> InValidSchedules = new HashMap<String, String>();//Id-Stack trace
         testsuites buildResult = new testsuites();
 
 
@@ -126,17 +126,22 @@ public class LeaptestBambooBridgeTask implements TaskType {
             if (InValidSchedules.size() > 0)
             {
                 buildLogger.addBuildLogEntry("INVALID SCHEDULES:");
-                for (String invalidsch : InValidSchedules)
+                for (String invalidsch : InValidSchedules.keySet())
                 { buildLogger.addBuildLogEntry(invalidsch); }
 
                 buildResult.Schedules.add(new testsuite("INVALID SCHEDULES"));
 
+                ArrayList<String> invSch = new ArrayList<>(InValidSchedules.keySet());
+                ArrayList<String> invSchStackTrace = new ArrayList<>(InValidSchedules.values());
 
-                for (int i = 0; i < InValidSchedules.size(); i++)
+                for(int i = 0; i < InValidSchedules.size();i++)
                 {
-                    buildResult.Schedules.get(buildResult.Schedules.size() - 1).Cases.add(new testcase(InValidSchedules.get(i), "Failed", 0, "Check this schedule on your Leaptest server and try again!", "INVALID SCHEDULE"));
+                    buildResult.Schedules.get(buildResult.Schedules.size() - 1).Cases.add(new testcase(invSch.get(i), "Failed", 0, invSchStackTrace.get(i), "INVALID SCHEDULE"));
                     buildResult.Schedules.get(buildResult.Schedules.size()- 1).incErrors();
                 }
+
+                invSch = null;
+                invSchStackTrace = null;
             }
 
 
@@ -189,7 +194,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
     //////////////////////////////////////////////////////
 
-    private static String JsonToBamboo(String str, int current, BuildLogger buildLogger, MutableBoolean isRunning, String doneStatus, testsuites buildResult)
+    private static String JsonToBamboo(String str, int current, BuildLogger buildLogger, MutableBoolean isRunning, String doneStatus, testsuites buildResult, HashMap<String, String> InValidSchedules)
     {
 
         String BambooMessage = "";
@@ -321,17 +326,19 @@ public class LeaptestBambooBridgeTask implements TaskType {
             }
             else
             {
-                buildResult.Schedules.get(current).Error(String.format("Schedule [%1$s] returns bad JSON: &#xA; %2$s", ScheduleId, str));
+                String errorMessage = String.format("Schedule [%1$s] returns bad JSON: &#xA; %2$s", ScheduleId, str);
+                buildResult.Schedules.get(current).Error(errorMessage);
                 buildResult.Schedules.get(current).Cases.add(new testcase("Bad Json:", "Failed", 0,str, ScheduleId));
                 buildResult.Schedules.get(current).incErrors();
                 buildLogger.addErrorLogEntry(String.format("Schedule[%1$s] returns bad JSON:\n %2$s",  ScheduleId,str));
+                InValidSchedules.put(ScheduleId,errorMessage);
             }
         }
 
         return BambooMessage;
     }
 
-    private static  void GetSchTitlesOrIds(String uri, ArrayList<String> scheduleInfo, BuildLogger buildLogger, HashMap<String, String> schedules, testsuites buildResult, ArrayList<String> InValidSchedules)
+    private static  void GetSchTitlesOrIds(String uri, ArrayList<String> scheduleInfo, BuildLogger buildLogger, HashMap<String, String> schedules, testsuites buildResult, HashMap<String, String> InValidSchedules)
     {
         try
         {
@@ -381,24 +388,24 @@ public class LeaptestBambooBridgeTask implements TaskType {
                 }
 
                 if (!success)
-                { InValidSchedules.add(scheduleInfo.get(i)); }
+                { InValidSchedules.put(scheduleInfo.get(i),"Tried to get schedule title or id! Check connection to your server and try again!"); }
             }
             return ;
         }
         catch (InterruptedException e) {
-            buildLogger.addErrorLogEntry(String.format(" Tried to get schedule titles or id! Check connection to your server and try again!"));
             buildLogger.addErrorLogEntry(e.getMessage());
         } catch (ExecutionException e) {
-            buildLogger.addErrorLogEntry(String.format(" Tried to get schedule titles or id! Check connection to your server and try again!"));
             buildLogger.addErrorLogEntry(e.getMessage());
         } catch (IOException e) {
-            buildLogger.addErrorLogEntry(String.format(" Tried to get schedule titles or id! Check connection to your server and try again!"));
             buildLogger.addErrorLogEntry(e.getMessage());
-
+        }
+        catch (Exception e)
+        {
+            buildLogger.addErrorLogEntry(String.format("Tried to get schedule titles or id! Check connection to your server and try again!"));
         }
     }
 
-    private static void RunSchedule(String uri, String schId, String schTitle, int current, BuildLogger buildLogger, MutableBoolean successfullyLaunchedSchedule, testsuites buildResult, ArrayList<String> InValidSchedules)
+    private static void RunSchedule(String uri, String schId, String schTitle, int current, BuildLogger buildLogger, MutableBoolean successfullyLaunchedSchedule, testsuites buildResult, HashMap<String, String> InValidSchedules)
     {
         try
         {
@@ -411,7 +418,10 @@ public class LeaptestBambooBridgeTask implements TaskType {
             if (response.getStatusCode() != 204)          // 204 Response means correct schedule launching
             {
 
-                throw new ErrorCodeException(response.getStatusCode(),response.getStatusText());
+                String errormessage = String.format("Code: %1$s Status: %2$s!", response.getStatusCode(), response.getStatusText());
+                buildLogger.addErrorLogEntry(errormessage);
+                buildResult.Schedules.get(current).Error(errormessage);
+                throw new Exception();
 
             }
             else
@@ -425,10 +435,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
             return;
         }
-        catch (ErrorCodeException e) {
-            buildResult.Schedules.get(current).Error(e.getMessage());
-            buildLogger.addErrorLogEntry(e.getMessage());
-        } catch (InterruptedException e) {
+          catch (InterruptedException e) {
             buildLogger.addErrorLogEntry(e.getMessage());
             buildResult.Schedules.get(current).Error(e.getMessage());
         } catch (ExecutionException e) {
@@ -443,13 +450,13 @@ public class LeaptestBambooBridgeTask implements TaskType {
             buildLogger.addErrorLogEntry(errormessage);
             buildResult.Schedules.get(current).Error(errormessage);
             buildResult.Schedules.get(current).incErrors();
-            InValidSchedules.add(schId);
+            InValidSchedules.put(schId,buildResult.Schedules.get(current).Error());
             successfullyLaunchedSchedule.setValue(false);
         }
 
     }
 
-    private static void GetScheduleState(String uri, String schId, String schTitle, int current, BuildLogger buildLogger, MutableBoolean isRunning, String doneStatus, testsuites buildResult, ArrayList<String> InValidSchedules)
+    private static void GetScheduleState(String uri, String schId, String schTitle, int current, BuildLogger buildLogger, MutableBoolean isRunning, String doneStatus, testsuites buildResult, HashMap<String, String> InValidSchedules)
     {
         try
         {
@@ -460,19 +467,19 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
             if(response.getStatusCode() != 200)
             {
-                throw new ErrorCodeException(response.getStatusCode(),response.getStatusText());
+                String errormessage = String.format("Code: %1$s Status: %2$s!", response.getStatusCode(), response.getStatusText());
+                buildLogger.addErrorLogEntry(errormessage);
+                buildResult.Schedules.get(current).Error(errormessage);
+                throw new Exception();
             }
             else
             {
 
-                result = JsonToBamboo( response.getResponseBody(), current, buildLogger,isRunning,doneStatus, buildResult);
+                result = JsonToBamboo( response.getResponseBody(), current, buildLogger,isRunning,doneStatus, buildResult, InValidSchedules);
 
             }
         }
-        catch (ErrorCodeException e) {
-            buildResult.Schedules.get(current).Error(e.getMessage());
-            buildLogger.addErrorLogEntry(e.getMessage());
-        } catch (InterruptedException e) {
+          catch (InterruptedException e) {
             buildLogger.addErrorLogEntry(e.getMessage());
             buildResult.Schedules.get(current).Error(e.getMessage());
         } catch (ExecutionException e) {
@@ -483,11 +490,11 @@ public class LeaptestBambooBridgeTask implements TaskType {
             buildResult.Schedules.get(current).Error(e.getMessage());
         }catch (Exception e)
         {
-            String errorMessage = String.format("  Tried to get %1$s[%2$s] state! Check connection to your server and try again!", schTitle, schId);
+            String errorMessage = String.format("Tried to get %1$s[%2$s] state! Check connection to your server and try again!", schTitle, schId);
             buildResult.Schedules.get(current).Error(errorMessage);
             buildResult.Schedules.get(current).incErrors();
             buildLogger.addErrorLogEntry(errorMessage);
-            InValidSchedules.add(schId);
+            InValidSchedules.put(schId,buildResult.Schedules.get(current).Error());
         }
     }
 
