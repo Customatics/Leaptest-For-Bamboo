@@ -1,0 +1,40 @@
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+        <param name="vendor-logo">images/vendorLogo.png</param>
+        <param name="vendor-icon">images/vendorIcon.png</param>
+    </plugin-info>
+
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="LeaptestForBamboo"/>
+    
+    <!-- add our web resources -->
+    <web-resource key="LeaptestForBamboo-resources" name="LeaptestForBamboo Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        
+        <resource type="download" name="LeaptestForBamboo.css" location="/css/LeaptestForBamboo.css"/>
+        <resource type="download" name="LeaptestForBamboo.js" location="/js/LeaptestForBamboo.js"/>
+        <resource type="download" name="images/" location="/images"/>
+
+        <context>LeaptestForBamboo</context>
+    </web-resource>
+
+    <taskType key="LeaptestBambooBridgeTask" name="Leaptest for Bamboo"
+              class="com.customatics.LeaptestForBamboo.impl.LeaptestBambooBridgeTask">
+        <description>Choose, Run and get schedules' state
+        </description>
+        <category name="builder" />
+        <category name="test" />
+        <configuration
+                class="com.customatics.LeaptestForBamboo.impl.LeaptestBambooBridgeTaskConfigurator" />
+        <resource type="freemarker" name="edit"
+                  location="editLeaptestBambooBridgeTask.ftl" />
+        <resource type="freemarker" name="view"
+                  location="viewLeaptestBambooBridgeTask.ftl" />
+        <resource type="download" name="icon" location="images/vendorLogo.png" />
+    </taskType>
+</atlassian-plugin>
