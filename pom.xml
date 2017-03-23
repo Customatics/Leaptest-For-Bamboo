@@ -14,7 +14,7 @@
         <url>http://customatics.com/</url>
     </organization>
 
-    <name>Leaptest for Bamboo</name>
+    <name>Leaptest Integration</name>
     <description>Integrates Leaptest codeless test automation with Bamboo. Run tests, get results, generate reports.</description>
     <packaging>atlassian-plugin</packaging>
 

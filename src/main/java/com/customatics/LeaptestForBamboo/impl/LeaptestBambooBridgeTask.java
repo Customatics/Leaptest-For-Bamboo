@@ -28,9 +28,6 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
 
     TaskResult result;
-  //  static ArrayList<String> InValidSchedules = new ArrayList<String>();
-  //  static testsuites buildResult = new testsuites();
-
 
     @Override
     public TaskResult execute(final TaskContext taskContext) throws TaskException
@@ -137,7 +134,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
                 for(int i = 0; i < InValidSchedules.size();i++)
                 {
                     buildResult.Schedules.get(buildResult.Schedules.size() - 1).Cases.add(new testcase(invSch.get(i), "Failed", 0, invSchStackTrace.get(i), "INVALID SCHEDULE"));
-                    buildResult.Schedules.get(buildResult.Schedules.size()- 1).incErrors();
+                    //buildResult.Schedules.get(buildResult.Schedules.size()- 1).incErrors();
                 }
 
                 invSch = null;
@@ -158,14 +155,14 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
             CreateJunitReport(junitReportPath, buildLogger, taskContext, buildResult);
 
-            if (buildResult.Errors() != 0 || buildResult.FailedTests() != 0)
+            if (buildResult.Errors() > 0 || buildResult.FailedTests() > 0)
             {
-                result = TaskResultBuilder.create(taskContext).success().build();
+                result = TaskResultBuilder.create(taskContext).failed().build();
 
             }
             else
             {
-                result = TaskResultBuilder.create(taskContext).failed().build();
+                result = TaskResultBuilder.create(taskContext).success().build();
             }
 
             InValidSchedules = null;
@@ -179,10 +176,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
             buildLogger.addErrorLogEntry("No Schedules or wrong url! Check connection to your server or schedules and try again!");
             buildLogger.addErrorLogEntry(e.getMessage());
         }
-        /*catch (InterruptedException e) {
-            buildLogger.addErrorLogEntry("")
-            buildLogger.addErrorLogEntry(e.getMessage());
-        }*/
+
         catch (Exception e)
         {
             buildLogger.addErrorLogEntry("Leaptest for Bamboo plugin finished with errors!");
@@ -205,7 +199,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
         String ScheduleId = json.getString("ScheduleId");
 
 
-        if (!json.optString("Status").equals(""))
+        if (json.optString("Status").equals("Running"))
         {
             isRunning.setValue(true);
 
@@ -265,13 +259,17 @@ public class LeaptestBambooBridgeTask implements TaskType {
                 ArrayList<String> CaseName = new ArrayList<String>();
                 for (int i = 0;  i < jsonArray.length(); i++) CaseName.add(jsonArray.getJSONObject(i).getJSONObject("Case").getString("Title"));
 
-
+                ArrayList<String> Environment = new ArrayList<String>();
+                for (int i = 0;  i < jsonArray.length(); i++) Environment.add(jsonArray.getJSONObject(i).getJSONObject("Environment").getString("Title"));
 
 
                 for (int i = 0; i < jsonArray.length(); i++)
                 {
 
-                    double seconds = jsonArray.getJSONObject(i).getDouble("TotalSeconds");
+                   // double seconds = jsonArray.getJSONObject(i).getDouble("TotalSeconds");
+                    String ElapsedTime[] = Elapsed.get(i).split(":|\\.");
+                    double seconds  = Double.parseDouble(ElapsedTime[0]) * 60 * 60 + Double.parseDouble(ElapsedTime[1]) * 60 + Double.parseDouble(ElapsedTime[2]) + Double.parseDouble("0." + ElapsedTime[3]);
+                    ElapsedTime = null;
 
                     if (Status.get(i).contains("Failed") || (Status.get(i).contains("Done") && doneStatus.contains("Failed")))
                     {
@@ -279,8 +277,6 @@ public class LeaptestBambooBridgeTask implements TaskType {
                         //KeyframeInfo
                         ArrayList<String> KeyFrameTimeStamp = new ArrayList<String>();
                         for (int j = 0;  j < keyframes.length(); j++) KeyFrameTimeStamp.add(keyframes.getJSONObject(j).getString("Timestamp"));
-                        ArrayList<String> KeyFrameStatus = new ArrayList<String>();
-                        for (int j = 0;  j < keyframes.length(); j++) KeyFrameStatus.add(keyframes.getJSONObject(j).getString("Status"));
                         ArrayList<String> KeyFrameLogMessage = new ArrayList<String>();
                         for (int j = 0;  j < keyframes.length(); j++) KeyFrameLogMessage.add(keyframes.getJSONObject(j).getString("LogMessage"));
 
@@ -294,23 +290,20 @@ public class LeaptestBambooBridgeTask implements TaskType {
                             if (level.equals("") || level.contains("Trace")) { }
                             else
                             {
-
-                                String stacktrace = String.format(/*"%1$s | %2$s | %3$s"*/"%1$s - %3$s", KeyFrameTimeStamp.get(j), KeyFrameStatus.get(j), KeyFrameLogMessage.get(j));
+                                String stacktrace = String.format("%1$s - %2$s", KeyFrameTimeStamp.get(j), KeyFrameLogMessage.get(j));
                                 buildLogger.addBuildLogEntry(stacktrace);
                                 fullstacktrace += stacktrace;
-                                fullstacktrace += "&#xA;";
-                               // fullstacktrace += '\n';
+                                fullstacktrace += "&#xA;"; // fullstacktrace += '\n';
                             }
                         }
+                        fullstacktrace += "Environment: " + Environment.get(i);
                         buildResult.Schedules.get(current).Cases.add(new testcase(CaseName.get(i), Status.get(i), seconds, fullstacktrace, ScheduleTitle/* + "[" + ScheduleId + "]"*/));
-                        //buildResult.Schedules.get(current).incFailed();
                         keyframes = null;
                     }
                     else
                     {
                         buildLogger.addBuildLogEntry(String.format("Case: %1$s | Status: %2$s | Elapsed: %3$s", CaseName.get(i), Status.get(i), Elapsed.get(i)));
                         buildResult.Schedules.get(current).Cases.add(new testcase(CaseName.get(i), Status.get(i), seconds, ScheduleTitle/* + "[" + ScheduleId + "]"*/));
-                       // buildResult.Schedules.get(current).incPassed();
                     }
                 }
 
@@ -326,11 +319,10 @@ public class LeaptestBambooBridgeTask implements TaskType {
             }
             else
             {
-                String errorMessage = String.format("Schedule [%1$s] returns bad JSON: &#xA; %2$s", ScheduleId, str);
+                String errorMessage = String.format("Schedule [%1$s] has no cases! JSON: &#xA; %2$s", ScheduleId, str);
                 buildResult.Schedules.get(current).Error(errorMessage);
-                buildResult.Schedules.get(current).Cases.add(new testcase("Bad Json:", "Failed", 0,str, ScheduleId));
                 buildResult.Schedules.get(current).incErrors();
-                buildLogger.addErrorLogEntry(String.format("Schedule[%1$s] returns bad JSON:\n %2$s",  ScheduleId,str));
+                buildLogger.addErrorLogEntry(String.format("Schedule[%1$s] has no cases! JSON:\n %2$s",  ScheduleId,str));
                 InValidSchedules.put(ScheduleId,errorMessage);
             }
         }

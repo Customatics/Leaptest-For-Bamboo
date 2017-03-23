@@ -23,7 +23,7 @@
         <context>LeaptestForBamboo</context>
     </web-resource>
 
-    <taskType key="LeaptestBambooBridgeTask" name="Leaptest for Bamboo"
+    <taskType key="LeaptestBambooBridgeTask" name="Leaptest Integration"
               class="com.customatics.LeaptestForBamboo.impl.LeaptestBambooBridgeTask">
         <description>Choose, Run and get schedules' state
         </description>
