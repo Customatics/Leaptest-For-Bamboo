@@ -255,13 +255,24 @@ public class LeaptestBambooBridgeTask implements TaskType {
                 ArrayList<String> Elapsed = new ArrayList<String>();
                 for (int i = 0;  i < jsonArray.length(); i++) Elapsed.add(jsonArray.getJSONObject(i).getString("Elapsed"));
 
-                //CaseInfo
-                ArrayList<String> CaseName = new ArrayList<String>();
-                for (int i = 0;  i < jsonArray.length(); i++) CaseName.add(jsonArray.getJSONObject(i).getJSONObject("Case").getString("Title"));
+
 
                 ArrayList<String> Environment = new ArrayList<String>();
                 for (int i = 0;  i < jsonArray.length(); i++) Environment.add(jsonArray.getJSONObject(i).getJSONObject("Environment").getString("Title"));
 
+                //CaseInfo
+                ArrayList<String> CaseName = new ArrayList<String>();
+                for (int i = 0;  i < jsonArray.length(); i++)
+                {
+                    String caseTitle = jsonArray.getJSONObject(i).getJSONObject("Case").optString("Title","null");
+                    if(!caseTitle.contains("null"))
+                    {
+                        CaseName.add(String.format("%1$s(%2$s)",caseTitle,Environment.get(i)));
+                    }
+                    else {
+                        CaseName.add(String.format("%1$s(%2$s)",CaseName.get(CaseName.size() - 1).replaceAll("\\(.*\\)",""),Environment.get(i)));
+                    }
+                }
 
                 for (int i = 0; i < jsonArray.length(); i++)
                 {
@@ -297,6 +308,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
                             }
                         }
                         fullstacktrace += "Environment: " + Environment.get(i);
+                        buildLogger.addBuildLogEntry("Environment: " + Environment.get(i));
                         buildResult.Schedules.get(current).Cases.add(new testcase(CaseName.get(i), Status.get(i), seconds, fullstacktrace, ScheduleTitle/* + "[" + ScheduleId + "]"*/));
                         keyframes = null;
                     }
