@@ -19,6 +19,8 @@ import javax.xml.bind.PropertyException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -267,12 +269,34 @@ public class LeaptestBambooBridgeTask implements TaskType {
                     String caseTitle = jsonArray.getJSONObject(i).getJSONObject("Case").optString("Title","null");
                     if(!caseTitle.contains("null"))
                     {
-                        CaseName.add(String.format("%1$s(%2$s)",caseTitle,Environment.get(i)));
+                        CaseName.add(caseTitle);
                     }
                     else {
-                        CaseName.add(String.format("%1$s(%2$s)",CaseName.get(CaseName.size() - 1).replaceAll("\\(.*\\)",""),Environment.get(i)));
+                        CaseName.add(CaseName.get(CaseName.size() - 1)); //.replaceAll("\\(.*\\)","")
                     }
                 }
+
+                HashSet<String> NotRepeatedNamesSet = new HashSet<String>(CaseName);
+                String[] NotRepeatedNames = NotRepeatedNamesSet.toArray(new String[NotRepeatedNamesSet.size()]);
+                NotRepeatedNamesSet = null;
+
+                for(int i = 0; i < NotRepeatedNames.length; i++)
+                {
+                    int count = 0;
+                    for(int j = 0; j < CaseName.size(); j++)
+                    {
+                        if(NotRepeatedNames[i].equals(CaseName.get(j)))
+                        {
+                            if(count > 0)
+                            {
+                                CaseName.set(j,String.format("%1$s(%2$d)",CaseName.get(j),count));
+                            }
+                            count++;
+                        }
+                    }
+                }
+
+                NotRepeatedNames = null;
 
                 for (int i = 0; i < jsonArray.length(); i++)
                 {
