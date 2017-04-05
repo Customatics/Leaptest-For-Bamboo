@@ -1,4 +1,4 @@
-package com.customatics.LeaptestForBamboo.impl;
+package com.customatics.leaptest_integration_for_bamboo.impl;
 
 import com.atlassian.bamboo.build.logger.BuildLogger;
 import com.atlassian.bamboo.task.TaskContext;
@@ -20,12 +20,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Created by Роман on 24.02.2017.
- */
+
 public class LeaptestBambooBridgeTask implements TaskType {
 
 
@@ -170,7 +167,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
             InValidSchedules = null;
             buildResult = null;
 
-            buildLogger.addBuildLogEntry("Leaptest for Bamboo  plugin  successfully finished!");
+            buildLogger.addBuildLogEntry("Leaptest Integration for Bamboo  plugin  successfully finished!");
         }
 
         catch (IndexOutOfBoundsException e)
@@ -181,7 +178,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
         catch (Exception e)
         {
-            buildLogger.addErrorLogEntry("Leaptest for Bamboo plugin finished with errors!");
+            buildLogger.addErrorLogEntry("Leaptest Integration for Bamboo plugin finished with errors!");
             result = TaskResultBuilder.create(taskContext).failed().build();
         }
         return result;
@@ -318,6 +315,9 @@ public class LeaptestBambooBridgeTask implements TaskType {
                         buildLogger.addBuildLogEntry(String.format("Case: %1$s | Status: %2$s | Elapsed: %3$s", CaseName.get(i), Status.get(i), Elapsed.get(i)));
 
                         String fullstacktrace = "&#xA;";
+                        fullstacktrace += String.format("Environment: %1$s",Environment.get(i));
+                        buildLogger.addBuildLogEntry(String.format("Environment: %1$s",Environment.get(i)));
+                        fullstacktrace += "&#xA;";
 
                         for (int j = 0; j < keyframes.length(); j++)
                         {
@@ -331,8 +331,8 @@ public class LeaptestBambooBridgeTask implements TaskType {
                                 fullstacktrace += "&#xA;"; // fullstacktrace += '\n';
                             }
                         }
-                        fullstacktrace += "Environment: " + Environment.get(i);
-                        buildLogger.addBuildLogEntry("Environment: " + Environment.get(i));
+
+
                         buildResult.Schedules.get(current).Cases.add(new testcase(CaseName.get(i), Status.get(i), seconds, fullstacktrace, ScheduleTitle/* + "[" + ScheduleId + "]"*/));
                         keyframes = null;
                     }
@@ -553,7 +553,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
         }
         catch (FileNotFoundException e) {
-            buildLogger.addErrorLogEntry("Couldn't find report file! Wrong path! Press \"help\" button nearby \"report\" textbox! ");
+            buildLogger.addErrorLogEntry("Couldn't find report file! Wrong path! Check your report file name in Leaptest Integration task configuration and in JUnit Parser. They MUST match! ");
             buildLogger.addErrorLogEntry(e.getMessage());
         } catch (IOException e) {
             buildLogger.addErrorLogEntry(e.getMessage());

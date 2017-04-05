@@ -1,11 +1,9 @@
-package com.customatics.LeaptestForBamboo.impl;
+package com.customatics.leaptest_integration_for_bamboo.impl;
 
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 
-/**
- * Created by Роман on 01.03.2017.
- */
+
 @XmlRootElement(name = "testsuites")
 @XmlAccessorType(XmlAccessType.NONE)
 public class testsuites

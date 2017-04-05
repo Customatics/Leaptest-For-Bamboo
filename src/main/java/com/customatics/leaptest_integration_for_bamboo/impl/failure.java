@@ -1,4 +1,4 @@
-package com.customatics.LeaptestForBamboo.impl;
+package com.customatics.leaptest_integration_for_bamboo.impl;
 
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -16,7 +16,7 @@ public class failure
     public failure(String stacktrace)
     {
         message = stacktrace;
-        type = "Stacktrace";
+        type = "Stack trace";
     }
 
 

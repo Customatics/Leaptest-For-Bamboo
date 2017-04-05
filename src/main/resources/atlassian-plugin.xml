@@ -7,30 +7,19 @@
         <param name="plugin-logo">images/pluginLogo.png</param>
         <param name="vendor-logo">images/vendorLogo.png</param>
         <param name="vendor-icon">images/vendorIcon.png</param>
+        <param name="plugin-banner">images/pluginBanner.png</param>
     </plugin-info>
 
-    <!-- add our i18n resource -->
-    <resource type="i18n" name="i18n" location="LeaptestForBamboo"/>
-    
-    <!-- add our web resources -->
-    <web-resource key="LeaptestForBamboo-resources" name="LeaptestForBamboo Web Resources">
-        <dependency>com.atlassian.auiplugin:ajs</dependency>
-        
-        <resource type="download" name="LeaptestForBamboo.css" location="/css/LeaptestForBamboo.css"/>
-        <resource type="download" name="LeaptestForBamboo.js" location="/js/LeaptestForBamboo.js"/>
-        <resource type="download" name="images/" location="/images"/>
-
-        <context>LeaptestForBamboo</context>
-    </web-resource>
+    <resource type="i18n" name="i18n" location="leaptest_integration_for_bamboo"/>
 
     <taskType key="LeaptestBambooBridgeTask" name="Leaptest Integration"
-              class="com.customatics.LeaptestForBamboo.impl.LeaptestBambooBridgeTask">
+              class="com.customatics.leaptest_integration_for_bamboo.impl.LeaptestBambooBridgeTask">
         <description>Choose, Run and get schedules' state
         </description>
         <category name="builder" />
         <category name="test" />
         <configuration
-                class="com.customatics.LeaptestForBamboo.impl.LeaptestBambooBridgeTaskConfigurator" />
+                class="com.customatics.leaptest_integration_for_bamboo.impl.LeaptestBambooBridgeTaskConfigurator" />
         <resource type="freemarker" name="edit"
                   location="editLeaptestBambooBridgeTask.ftl" />
         <resource type="freemarker" name="view"

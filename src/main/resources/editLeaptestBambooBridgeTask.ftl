@@ -1,10 +1,10 @@
 [#assign versionlist=context.get("versions") /]
-[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.version.label' name='version' list=versionlist required='true' id="version" emptyOption='false' style="width: 80px;"/]
+[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.version.label' name='version' list=versionlist  id="version" emptyOption='false' style="width: 80px;"/]
 [@ww.textfield labelKey="leaptest.address.label" name="address" id="address" required='true' style="max-width: 350px; "/]
 [@ww.textfield labelKey="leaptest.delay.label" name="delay" id="delay" required='false' style="width: 80px;"/]
 [#assign statuslist=context.get("statuses") /]
-[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.doneStatusAs.label' name='doneStatusAs' list=statuslist required='true' id="doneStatusAs" emptyOption='false' style="width: 80px;"/]
-[@ww.textfield labelKey="leaptest.report.label" name="report" id="report" required='false' style="max-width: 350px;"/]
+[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.doneStatusAs.label' name='doneStatusAs' list=statuslist  id="doneStatusAs" emptyOption='false' style="width: 80px;"/]
+[@ww.textfield labelKey="leaptest.report.label" name="report" id="report" required='true' style="max-width: 350px;"/]
 [@ww.textarea labelKey="leaptest.schNames.label" name="schNames" id="schNames" required='true' style="max-width: 350px;  height:80px;" readonly='true' emptyOption='false'/]
 [@ww.textarea labelKey="leaptest.schIds.label" name="schIds" id="schIds" required='false' style="max-width: 350px;" readonly='true'/]
 

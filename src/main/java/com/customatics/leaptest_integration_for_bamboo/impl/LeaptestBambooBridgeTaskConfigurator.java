@@ -1,4 +1,4 @@
-package com.customatics.LeaptestForBamboo.impl;
+package com.customatics.leaptest_integration_for_bamboo.impl;
 
 import com.atlassian.bamboo.collections.ActionParametersMap;
 import com.atlassian.bamboo.task.AbstractTaskConfigurator;
@@ -10,9 +10,7 @@ import com.atlassian.util.concurrent.Nullable;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * Created by Роман on 24.02.2017.
- */
+
 public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurator {
 
     private TextProvider textProvider;

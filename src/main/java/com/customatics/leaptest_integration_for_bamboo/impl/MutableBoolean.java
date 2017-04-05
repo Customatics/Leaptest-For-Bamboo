@@ -1,8 +1,6 @@
-package com.customatics.LeaptestForBamboo.impl;
+package com.customatics.leaptest_integration_for_bamboo.impl;
 
-/**
- * Created by Роман on 09.03.2017.
- */
+
 public class MutableBoolean {
     private boolean value;
 
@@ -19,3 +17,5 @@ public class MutableBoolean {
         return value;
     }
 }
+
+

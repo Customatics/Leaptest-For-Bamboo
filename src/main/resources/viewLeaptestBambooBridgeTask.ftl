@@ -1,10 +1,10 @@
 
 [#assign versionlist=context.get("versions") /]
-[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.version.label' name='version' list=versionlist required='true' id="version" emptyOption='false'/]
+[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.version.label' name='version' list=versionlist  id="version" emptyOption='false'/]
 [@ww.label labelKey="leaptest.address.label" name="address" id="address" required='true'/]
 [@ww.label labelKey="leaptest.delay.label" name="delay" id="delay" required='false'/]
 [#assign statuslist=context.get("statuses") /]
-[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.doneStatusAs.label' name='doneStatusAs' list=statuslist required='true' id="doneStatusAs" emptyOption='false'/]
-[@ww.label labelKey="leaptest.report.label" name="report" id="report" required='false'/]
+[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.doneStatusAs.label' name='doneStatusAs' list=statuslist  id="doneStatusAs" emptyOption='false'/]
+[@ww.label labelKey="leaptest.report.label" name="report" id="report" required='true'/]
 [@ww.label labelKey="leaptest.schNames.label" name="schNames" id="schNames" required='true'/]
 [@ww.label labelKey="leaptest.schIds.label" name="schIds" id="schIds" required='false'/]
