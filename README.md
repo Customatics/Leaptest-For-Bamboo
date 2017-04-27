@@ -15,7 +15,7 @@ Leaptest is a mighty automation testing system and now it can be used for runnin
 
 # Installing
 - Use atlassian-sdk maven 3.2.1.
-- Command: atlas-mvn package -DskipTests
+- Command: atlas-mvn package 
 - Or simply install the jar-file from the "target" folder: Bamboo Administration -> Add-ons -> Upload add-on -> Choose that jar-file
 
 # Instruction
