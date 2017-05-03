@@ -1,6 +1,4 @@
 
-[#assign versionlist=context.get("versions") /]
-[@ww.select cssClass="builderSelectWidget" labelKey='leaptest.version.label' name='version' list=versionlist  id="version" emptyOption='false'/]
 [@ww.label labelKey="leaptest.address.label" name="address" id="address" required='true'/]
 [@ww.label labelKey="leaptest.delay.label" name="delay" id="delay" required='false'/]
 [#assign statuslist=context.get("statuses") /]

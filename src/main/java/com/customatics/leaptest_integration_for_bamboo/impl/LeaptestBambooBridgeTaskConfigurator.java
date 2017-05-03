@@ -20,15 +20,12 @@ public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurat
     {
         final Map<String, String> config = super.generateTaskConfigMap(params, previousTaskDefinition);
 
-        config.put("version", params.getString("version"));
         config.put("address", params.getString("address"));
         config.put("delay", params.getString("delay"));
         config.put("doneStatusAs", params.getString("doneStatusAs"));
         config.put("report", params.getString("report"));
         config.put("schNames", params.getString("schNames"));
         config.put("schIds", params.getString("schIds"));
-
-
 
         return config;
     }
@@ -41,15 +38,12 @@ public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurat
 
         context.put("delay", "5");
         context.put("report","report.xml");
-
-        ArrayList<String> versions = new ArrayList<String>();
-        versions.add("1.1.0");
-        context.put("versions",versions);
+       
         ArrayList<String> statuses = new ArrayList<String>();
         statuses.add("Failed");
         statuses.add("Success");
         context.put("statuses",statuses);
-        versions = null;
+
         statuses = null;
 
 
@@ -60,7 +54,7 @@ public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurat
     {
         super.populateContextForEdit(context, taskDefinition);
 
-        context.put("version", taskDefinition.getConfiguration().get("version"));
+
         context.put("address", taskDefinition.getConfiguration().get("address"));
         context.put("delay", taskDefinition.getConfiguration().get("delay"));
         context.put("doneStatusAs", taskDefinition.getConfiguration().get("doneStatusAs"));
@@ -68,14 +62,11 @@ public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurat
         context.put("schNames", taskDefinition.getConfiguration().get("schNames"));
         context.put("schIds", taskDefinition.getConfiguration().get("schIds")); // for debug only!
 
-        ArrayList<String> versions = new ArrayList<String>();
-        versions.add("1.1.0");
-        context.put("versions",versions);
         ArrayList<String> statuses = new ArrayList<String>();
         statuses.add("Failed");
         statuses.add("Success");
         context.put("statuses",statuses);
-        versions = null;
+
         statuses = null;
     }
 }
