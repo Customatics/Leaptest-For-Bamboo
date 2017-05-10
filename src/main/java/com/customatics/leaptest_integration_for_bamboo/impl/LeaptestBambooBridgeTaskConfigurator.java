@@ -36,9 +36,9 @@ public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurat
     {
         super.populateContextForCreate(context);
 
-        context.put("delay", "5");
+        context.put("delay", "3");
         context.put("report","report.xml");
-       
+
         ArrayList<String> statuses = new ArrayList<String>();
         statuses.add("Failed");
         statuses.add("Success");

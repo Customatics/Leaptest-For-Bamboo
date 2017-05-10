@@ -75,14 +75,14 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
         String uri =  String.format(MESSAGES.GET_ALL_AVAILABLE_SCHEDULES_URI, address);
 
-        int timeDelay = 1;
+        int timeDelay = 3;
         if(!delay.isEmpty() || !"".equals(delay))
         {timeDelay = Integer.parseInt(delay);}
 
         String junitReportPath =  report;
 
-        MutableBoolean isRunning = new MutableBoolean(false);
-        MutableBoolean successfullyLaunchedSchedule = new MutableBoolean(false);
+        MutableBoolean isScheduleStillRunning = new MutableBoolean(false);
+        MutableBoolean isSuccessfullyLaunchedSchedule = new MutableBoolean(false);
         HashMap<String, String> schedules = new HashMap<String, String>(); // Id-Title
 
 
@@ -102,18 +102,18 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
 
 
-                RunSchedule(runUri, schedule.getKey(), schedule.getValue(), index, buildLogger, successfullyLaunchedSchedule, buildResult, InValidSchedules); // Run schedule. In case of unsuccessfull run throws exception
+                RunSchedule(runUri, schedule.getKey(), schedule.getValue(), index, buildLogger, isSuccessfullyLaunchedSchedule, buildResult, InValidSchedules); // Run schedule. In case of unsuccessfull run throws exception
 
-                if (successfullyLaunchedSchedule.getValue()) // if schedule was successfully run
+                if (isSuccessfullyLaunchedSchedule.getValue()) // if schedule was successfully run
                 {
                     do
                     {
 
                         Thread.sleep(timeDelay * 1000); //Time delay
-                        GetScheduleState(stateUri, schedule.getKey(), schedule.getValue(), index, buildLogger, isRunning, doneStatusAs, buildResult, InValidSchedules); //Get schedule state info
+                        GetScheduleState(stateUri, schedule.getKey(), schedule.getValue(), index, buildLogger, isScheduleStillRunning, doneStatusAs, buildResult, InValidSchedules); //Get schedule state info
 
                     }
-                    while (isRunning.getValue());
+                    while (isScheduleStillRunning.getValue());
                 }
 
                 index++;
@@ -187,7 +187,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
     //////////////////////////////////////////////////////
 
-    private static String JsonToBamboo(String str, int current, BuildLogger buildLogger, MutableBoolean isRunning, String doneStatus, ScheduleCollection buildResult, HashMap<String, String> InValidSchedules)
+    private static String JsonToBamboo(String str, int current, BuildLogger buildLogger, MutableBoolean isScheduleStillRunning, String doneStatus, ScheduleCollection buildResult, HashMap<String, String> InValidSchedules)
     {
 
         String BambooMessage = "";
@@ -198,11 +198,11 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
         if (json.optString("Status").equals("Running") || json.optString("Status").equals("Queued"))
         {
-            isRunning.setValue(true);
+            isScheduleStillRunning.setValue(true);
         }
         else
         {
-            isRunning.setValue(false);
+            isScheduleStillRunning.setValue(false);
             /////////Schedule Info
 
             JSONObject LastRun = json.optJSONObject("LastRun");
@@ -419,7 +419,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
         }
     }
 
-    private static void RunSchedule(String uri, String schId, String schTitle, int current, BuildLogger buildLogger, MutableBoolean successfullyLaunchedSchedule, ScheduleCollection buildResult, HashMap<String, String> InValidSchedules)
+    private static void RunSchedule(String uri, String schId, String schTitle, int current, BuildLogger buildLogger, MutableBoolean isSuccessfullyLaunchedSchedule, ScheduleCollection buildResult, HashMap<String, String> InValidSchedules)
     {
         try
         {
@@ -439,7 +439,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
             else
             {
 
-                successfullyLaunchedSchedule.setValue(true);
+                isSuccessfullyLaunchedSchedule.setValue(true);
                 String successmessage = String.format(MESSAGES.SCHEDULE_RUN_SUCCESS, schTitle, schId);
                 buildResult.Schedules.get(current).setId(current);
                 buildLogger.addBuildLogEntry(successmessage);
@@ -463,12 +463,12 @@ public class LeaptestBambooBridgeTask implements TaskType {
             buildResult.Schedules.get(current).setError(errormessage);
             buildResult.Schedules.get(current).incErrors();
             InValidSchedules.put(schId,buildResult.Schedules.get(current).getError());
-            successfullyLaunchedSchedule.setValue(false);
+            isSuccessfullyLaunchedSchedule.setValue(false);
         }
 
     }
 
-    private static void GetScheduleState(String uri, String schId, String schTitle, int current, BuildLogger buildLogger, MutableBoolean isRunning, String doneStatus, ScheduleCollection buildResult, HashMap<String, String> InValidSchedules)
+    private static void GetScheduleState(String uri, String schId, String schTitle, int current, BuildLogger buildLogger, MutableBoolean isScheduleStillRunning, String doneStatus, ScheduleCollection buildResult, HashMap<String, String> InValidSchedules)
     {
         try
         {
@@ -486,7 +486,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
             }
             else
             {
-                result = JsonToBamboo( response.getResponseBody(), current, buildLogger,isRunning,doneStatus, buildResult, InValidSchedules);
+                result = JsonToBamboo( response.getResponseBody(), current, buildLogger,isScheduleStillRunning,doneStatus, buildResult, InValidSchedules);
             }
         }
           catch (InterruptedException e) {
@@ -505,6 +505,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
             buildResult.Schedules.get(current).incErrors();
             buildLogger.addErrorLogEntry(errorMessage);
             InValidSchedules.put(schId,buildResult.Schedules.get(current).getError());
+            isScheduleStillRunning.setValue(false);
         }
     }
 
