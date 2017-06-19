@@ -1,4 +1,4 @@
-package com.customatics.leaptest_integration_for_bamboo.impl;
+package com.customatics.leaptest_integration_for_bamboo.model;
 
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -44,7 +44,7 @@ public class Case
 
     @XmlAttribute(name = "status")
     public String getCaseStatus()                { return  caseStatus;}
-    public void   etCaseStatus(String status)    { caseStatus = status; }
+    public void   setCaseStatus(String status)    { caseStatus = status; }
 
     @XmlAttribute(name = "time")
     public double getElapsedTime()               { return elapsedTime; }
