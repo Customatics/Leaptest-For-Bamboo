@@ -95,9 +95,9 @@ public class Schedule
     public void   setError(String error)
     {
         if(this.error == null)
-            this.error = error;
+            this.error = error.replace("\n","&#xA;");
         else
-            this.error += ("\n" + error);
+            this.error += ("\n" + error).replace("\n","&#xA;");
     }
 
     @XmlAttribute(name = "time")

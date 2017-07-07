@@ -114,6 +114,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
             buildLogger.addErrorLogEntry(e.getMessage());
             buildLogger.addErrorLogEntry(Messages.PLUGIN_ERROR_FINISH);
             result = TaskResultBuilder.create(taskContext).failed().build();
+            buildLogger.addErrorLogEntry(Messages.PLEASE_CONTACT_SUPPORT);
         }
         return result;
     }

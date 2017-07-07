@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.customatics</groupId>
     <artifactId>leaptest-integration-for-bamboo</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <organization>
         <name>Customatics</name>
@@ -114,6 +114,7 @@
                             com.google.protobuf.*;resolution:="optional",
                             org.glassfish.grizzly.*;resolution:="optional",
                             org.osgi.service.log;resolution:="optional",
+                            org.jboss.*;resolution:="optional",
                             *
                         </Import-Package>
 
