@@ -153,13 +153,14 @@ public final class PluginHandler {
             }
 
         } catch (ConnectException e){
-            buildLogger.addErrorLogEntry( e.getMessage());
+            String connectionErrorMessage = String.format(Messages.COULD_NOT_CONNECT_TO, e.getMessage());
+            throw new Exception(connectionErrorMessage);
         } catch (InterruptedException e) {
-            buildLogger.addErrorLogEntry( e.getMessage());
+            throw new Exception(e);
         } catch (ExecutionException e) {
-            buildLogger.addErrorLogEntry( e.getMessage());
+            throw new Exception(e);
         } catch (IOException e) {
-            buildLogger.addErrorLogEntry( e.getMessage());
+            throw new Exception(e);
         } catch (Exception e) {
             buildLogger.addErrorLogEntry(Messages.SCHEDULE_TITLE_OR_ID_ARE_NOT_GOT);
             buildLogger.addErrorLogEntry(e.getMessage());
@@ -218,15 +219,15 @@ public final class PluginHandler {
                     throw new Exception(errorMessage);
             }
 
+        } catch (ConnectException e){
+            String connectionErrorMessage = String.format(Messages.COULD_NOT_CONNECT_TO, e.getMessage());
+            throw new Exception(connectionErrorMessage);
         } catch (InterruptedException e) {
-            buildResult.Schedules.get(currentScheduleIndex).setError(e.getMessage());
-            buildLogger.addErrorLogEntry(e.getMessage());
+            throw new Exception(e);
         } catch (ExecutionException e) {
-            buildResult.Schedules.get(currentScheduleIndex).setError(e.getMessage());
-            buildLogger.addErrorLogEntry(e.getMessage());
+            throw new Exception(e);
         } catch (IOException e) {
-            buildResult.Schedules.get(currentScheduleIndex).setError(e.getMessage());
-            buildLogger.addErrorLogEntry(e.getMessage());
+            throw new Exception(e);
         }
         catch (Exception e){
             String errorMessage = String.format(Messages.SCHEDULE_RUN_FAILURE,  schedule.getValue(), schedule.getKey());
@@ -396,15 +397,15 @@ public final class PluginHandler {
                     throw new Exception(errorMessage);
             }
 
+        } catch (ConnectException e){
+            String connectionErrorMessage = String.format(Messages.COULD_NOT_CONNECT_TO, e.getMessage());
+            throw new Exception(connectionErrorMessage);
         } catch (InterruptedException e) {
-            buildLogger.addErrorLogEntry(e.getMessage());
-            buildResult.Schedules.get(currentScheduleIndex).setError(e.getMessage());
+            throw new Exception(e);
         } catch (ExecutionException e) {
-            buildLogger.addErrorLogEntry(e.getMessage());
-            buildResult.Schedules.get(currentScheduleIndex).setError(e.getMessage());
+            throw new Exception(e);
         } catch (IOException e) {
-            buildLogger.addErrorLogEntry(e.getMessage());
-            buildResult.Schedules.get(currentScheduleIndex).setError(e.getMessage());
+            throw new Exception(e);
         } catch (Exception e)
         {
             String errorMessage = String.format(Messages.SCHEDULE_STATE_FAILURE, schedule.getValue(), schedule.getKey());

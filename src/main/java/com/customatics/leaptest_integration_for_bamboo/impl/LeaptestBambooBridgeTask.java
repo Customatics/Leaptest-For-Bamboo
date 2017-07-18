@@ -103,11 +103,6 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
             buildLogger.addBuildLogEntry(Messages.PLUGIN_SUCCESSFUL_FINISH);
         }
-        catch (IndexOutOfBoundsException e)
-        {
-            buildLogger.addErrorLogEntry(Messages.NO_SCHEDULES_OR_WRONG_URL_ERROR);
-            buildLogger.addErrorLogEntry(e.getMessage());
-        }
 
         catch (Exception e)
         {
