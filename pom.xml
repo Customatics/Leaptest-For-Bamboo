@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.customatics</groupId>
     <artifactId>leaptest-integration-for-bamboo</artifactId>
-    <version>1.1.2</version>
+    <version>1.2.0</version>
 
     <organization>
         <name>Customatics</name>

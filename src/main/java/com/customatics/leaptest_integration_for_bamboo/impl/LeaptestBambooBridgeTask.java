@@ -1,17 +1,15 @@
 package com.customatics.leaptest_integration_for_bamboo.impl;
 
 import com.atlassian.bamboo.build.logger.BuildLogger;
-import com.atlassian.bamboo.task.TaskContext;
-import com.atlassian.bamboo.task.TaskException;
-import com.atlassian.bamboo.task.TaskResult;
-import com.atlassian.bamboo.task.TaskResultBuilder;
-import com.atlassian.bamboo.task.TaskType;
+import com.atlassian.bamboo.task.*;
 import com.customatics.leaptest_integration_for_bamboo.model.Case;
 import com.customatics.leaptest_integration_for_bamboo.model.InvalidSchedule;
 import com.customatics.leaptest_integration_for_bamboo.model.Schedule;
 import com.customatics.leaptest_integration_for_bamboo.model.ScheduleCollection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
 
 
 public class LeaptestBambooBridgeTask implements TaskType {
@@ -41,6 +39,9 @@ public class LeaptestBambooBridgeTask implements TaskType {
         String junitReportPath = pluginHandler.getJunitReportFilePath(taskContext, report);
         buildLogger.addBuildLogEntry(junitReportPath);
 
+        String schId = null;
+        String schTitle = null;
+
         rawScheduleList = pluginHandler.getRawScheduleList(schIds,schNames);
 
         int timeDelay = pluginHandler.getTimeDelay(delay);
@@ -51,25 +52,60 @@ public class LeaptestBambooBridgeTask implements TaskType {
             schedulesIdTitleHashMap = pluginHandler.getSchedulesIdTitleHashMap(address,rawScheduleList,buildLogger,buildResult,invalidSchedules);
             rawScheduleList = null;
 
+            if(schedulesIdTitleHashMap.isEmpty())
+            {
+                throw new Exception(Messages.NO_SCHEDULES);
+            }
+
+            List<String> schIdsList = new ArrayList<>(schedulesIdTitleHashMap.keySet());
 
             int currentScheduleIndex = 0;
-            for (HashMap.Entry<String,String> schedule : schedulesIdTitleHashMap.entrySet())
+            boolean needSomeSleep = false;   //this time is required if there are schedules to rerun left
+
+            while(!schIdsList.isEmpty())
             {
 
-                if (pluginHandler.runSchedule(address,schedule, currentScheduleIndex, buildLogger, buildResult, invalidSchedules)) // if schedule was successfully run
-                {
-                    boolean isStillRunning = true;
-
-                    do
-                    {
-                        Thread.sleep(timeDelay * 1000); //Time delay
-                        isStillRunning = pluginHandler.getScheduleState(address,schedule,currentScheduleIndex, doneStatusAs, buildLogger,buildResult, invalidSchedules);
-                    }
-                    while (isStillRunning);
+                if(needSomeSleep) {
+                    Thread.sleep(timeDelay * 1000); //Time delay
+                    needSomeSleep = false;
                 }
 
-                currentScheduleIndex++;
+                for(ListIterator<String> iter = schIdsList.listIterator(); iter.hasNext(); )
+                {
+                    schId = iter.next();
+                    schTitle = schedulesIdTitleHashMap.get(schId);
+                    RUN_RESULT runResult = pluginHandler.runSchedule(address, schId, schTitle, currentScheduleIndex, buildLogger,  buildResult, invalidSchedules);
+                    buildLogger.addBuildLogEntry("Current schedule index: " + currentScheduleIndex);
+
+                    if (runResult.equals(RUN_RESULT.RUN_SUCCESS)) // if schedule was successfully run
+                    {
+                        boolean isStillRunning = true;
+
+                        do
+                        {
+                            Thread.sleep(timeDelay * 1000); //Time delay
+                            isStillRunning = pluginHandler.getScheduleState(address,schId,schTitle,currentScheduleIndex, doneStatusAs,buildLogger, buildResult, invalidSchedules);
+                            if(isStillRunning) buildLogger.addBuildLogEntry(String.format(Messages.SCHEDULE_IS_STILL_RUNNING, schTitle, schId));
+                        }
+                        while (isStillRunning);
+
+                        iter.remove();
+                        currentScheduleIndex++;
+                    }
+                    else if (runResult.equals(RUN_RESULT.RUN_REPEAT))
+                    {
+                        needSomeSleep = true;
+                    }
+                    else
+                    {
+                        iter.remove();
+                        currentScheduleIndex++;
+                    }
+                }
             }
+
+            schIdsList = null;
+            schedulesIdTitleHashMap = null;
 
             if (invalidSchedules.size() > 0)
             {
@@ -97,21 +133,40 @@ public class LeaptestBambooBridgeTask implements TaskType {
             pluginHandler.createJUnitReport(junitReportPath,buildLogger,buildResult);
 
             if (buildResult.getErrors() > 0 || buildResult.getFailedTests() > 0 || invalidSchedules.size() > 0)
+            {
                 result = TaskResultBuilder.create(taskContext).failed().build();
+                buildLogger.addBuildLogEntry("FAILURE");
+            }
             else
+            {
                 result = TaskResultBuilder.create(taskContext).success().build();
+                buildLogger.addBuildLogEntry("SUCCESS");
+            }
 
             buildLogger.addBuildLogEntry(Messages.PLUGIN_SUCCESSFUL_FINISH);
         }
 
+        catch (InterruptedException e)
+        {
+            String interruptedExceptionMessage = String.format(Messages.INTERRUPTED_EXCEPTION, e.getMessage());
+            buildLogger.addErrorLogEntry(interruptedExceptionMessage);
+            pluginHandler.stopSchedule(address,schId,schTitle, buildLogger);
+            result = TaskResultBuilder.create(taskContext).failedWithError().build();
+            buildLogger.addErrorLogEntry("ABORTED");
+
+        }
         catch (Exception e)
         {
             buildLogger.addErrorLogEntry(e.getMessage());
             buildLogger.addErrorLogEntry(Messages.PLUGIN_ERROR_FINISH);
-            result = TaskResultBuilder.create(taskContext).failed().build();
+            buildLogger.addErrorLogEntry("ERROR");
+            result = TaskResultBuilder.create(taskContext).failedWithError().build();
             buildLogger.addErrorLogEntry(Messages.PLEASE_CONTACT_SUPPORT);
+        } finally {
+            return result;
         }
-        return result;
     }
+
+
 
 }
