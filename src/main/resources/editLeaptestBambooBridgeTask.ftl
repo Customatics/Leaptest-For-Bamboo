@@ -4,6 +4,7 @@
 [#assign statuslist=context.get("statuses") /]
 [@ww.select cssClass="builderSelectWidget" labelKey='leaptest.doneStatusAs.label' name='doneStatusAs' list=statuslist  id="doneStatusAs" emptyOption='false' style="width: 80px;"/]
 [@ww.textfield labelKey="leaptest.report.label" name="report" id="report" required='true' style="max-width: 350px;"/]
+[@ww.checkbox labelKey="leaptest.autoReport.label" name="autoReport" toggle="true" descriptionKey="leaptest.autoReport.description" /]
 [@ww.textarea labelKey="leaptest.schNames.label" name="schNames" id="schNames" required='true' style="max-width: 350px;  height:80px;" readonly='true' emptyOption='false'/]
 [@ww.textarea labelKey="leaptest.schIds.label" name="schIds" id="schIds" required='false' style="max-width: 350px;" readonly='true'/]
 
@@ -67,6 +68,17 @@ ul.ul-dropfree div.drop { width:11px; height:11px; position:absolute; z-index:10
   div.subrepoIcon {float: right;}
 
 </style>
+
+<script type="text/javascript">
+    function checkBoxChangeValue(checkbox)
+    {
+       checkbox.value = checkbox.value === "false" ? "true" : "false";
+       if(checkbox.value === "false")
+        checkbox.removeAttribute("checked");
+       else
+        checkbox.setAttribute("checked","checked");
+    }
+</script>
 
 <script type="text/javascript">
 

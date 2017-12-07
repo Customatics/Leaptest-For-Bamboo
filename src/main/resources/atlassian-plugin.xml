@@ -26,4 +26,5 @@
                   location="viewLeaptestBambooBridgeTask.ftl" />
         <resource type="download" name="icon" location="images/vendorLogo.png" />
     </taskType>
+
 </atlassian-plugin>

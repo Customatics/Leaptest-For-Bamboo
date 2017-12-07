@@ -1,11 +1,17 @@
 package com.customatics.leaptest_integration_for_bamboo.impl;
 
 import com.atlassian.bamboo.build.logger.BuildLogger;
+import com.atlassian.bamboo.build.test.TestCollationService;
+import com.atlassian.bamboo.build.test.TestCollectionResult;
+import com.atlassian.bamboo.build.test.junit.JunitTestReportCollector;
+import com.atlassian.bamboo.plugins.testresultparser.task.JUnitResultParserTask;
 import com.atlassian.bamboo.task.*;
 import com.customatics.leaptest_integration_for_bamboo.model.Case;
 import com.customatics.leaptest_integration_for_bamboo.model.InvalidSchedule;
 import com.customatics.leaptest_integration_for_bamboo.model.Schedule;
 import com.customatics.leaptest_integration_for_bamboo.model.ScheduleCollection;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +22,23 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
 
     TaskResult result;
+
     private static PluginHandler pluginHandler = PluginHandler.getInstance();
+
+    private final TestCollationService testCollationService;
+
+    public LeaptestBambooBridgeTask(TestCollationService testCollationService)
+    {
+        this.testCollationService = testCollationService;
+    }
 
     @Override
     public TaskResult execute(final TaskContext taskContext) throws TaskException
     {
+        final TaskResultBuilder taskResultBuilder = TaskResultBuilder.newBuilder(taskContext);
+
         final BuildLogger buildLogger = taskContext.getBuildLogger();
+
 
         HashMap<String, String> schedulesIdTitleHashMap = null; // Id-Title
         ArrayList<InvalidSchedule> invalidSchedules = new ArrayList<>();
@@ -35,7 +52,8 @@ public class LeaptestBambooBridgeTask implements TaskType {
         final String report = taskContext.getConfigurationMap().get("report");
         final String schIds = taskContext.getConfigurationMap().get("schIds");
         final String schNames = taskContext.getConfigurationMap().get("schNames");
-
+        final Boolean autoReportEnabled = Boolean.valueOf(taskContext.getConfigurationMap().get("autoReport"));
+        buildLogger.addBuildLogEntry(String.format("autoReportEnabled = %1$s",taskContext.getConfigurationMap().get("autoReport")));
         String junitReportPath = pluginHandler.getJunitReportFilePath(taskContext, report);
         buildLogger.addBuildLogEntry(junitReportPath);
 
@@ -130,20 +148,32 @@ public class LeaptestBambooBridgeTask implements TaskType {
             }
             buildResult.setTotalTests(buildResult.getFailedTests() + buildResult.getPassedTests());
 
-            pluginHandler.createJUnitReport(junitReportPath,buildLogger,buildResult);
+            File reportFile = pluginHandler.createJUnitReport(junitReportPath,buildLogger,buildResult);
 
-            if (buildResult.getErrors() > 0 || buildResult.getFailedTests() > 0 || invalidSchedules.size() > 0)
+
+
+            if(autoReportEnabled)
             {
-                result = TaskResultBuilder.create(taskContext).failed().build();
-                buildLogger.addBuildLogEntry("FAILURE");
+                testCollationService.collateTestResults(taskContext, report, new JunitTestReportCollector(), true );
+                result = taskResultBuilder.checkTestFailures().build();
             }
             else
             {
-                result = TaskResultBuilder.create(taskContext).success().build();
-                buildLogger.addBuildLogEntry("SUCCESS");
+                if (buildResult.getErrors() > 0 || buildResult.getFailedTests() > 0 || invalidSchedules.size() > 0)
+                {
+                    result = taskResultBuilder.failed().build();
+                    buildLogger.addBuildLogEntry("FAILURE");
+                }
+                else
+                {
+                    result = taskResultBuilder.success().build();
+
+                    buildLogger.addBuildLogEntry("SUCCESS");
+                }
             }
 
             buildLogger.addBuildLogEntry(Messages.PLUGIN_SUCCESSFUL_FINISH);
+
         }
 
         catch (InterruptedException e)
@@ -151,7 +181,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
             String interruptedExceptionMessage = String.format(Messages.INTERRUPTED_EXCEPTION, e.getMessage());
             buildLogger.addErrorLogEntry(interruptedExceptionMessage);
             pluginHandler.stopSchedule(address,schId,schTitle, buildLogger);
-            result = TaskResultBuilder.create(taskContext).failedWithError().build();
+            result = taskResultBuilder.failedWithError().build();
             buildLogger.addErrorLogEntry("ABORTED");
 
         }
@@ -160,7 +190,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
             buildLogger.addErrorLogEntry(e.getMessage());
             buildLogger.addErrorLogEntry(Messages.PLUGIN_ERROR_FINISH);
             buildLogger.addErrorLogEntry("ERROR");
-            result = TaskResultBuilder.create(taskContext).failedWithError().build();
+            result = taskResultBuilder.failedWithError().build();
             buildLogger.addErrorLogEntry(Messages.PLEASE_CONTACT_SUPPORT);
         } finally {
             return result;

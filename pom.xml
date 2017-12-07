@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.customatics</groupId>
     <artifactId>leaptest-integration-for-bamboo</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 
     <organization>
         <name>Customatics</name>
@@ -48,6 +48,12 @@
             <artifactId>atlassian-spring-scanner-runtime</artifactId>
             <version>${atlassian.spring.scanner.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.atlassian.bamboo.plugins.testresultparser</groupId>
+            <artifactId>atlassian-bamboo-plugin-testresultparser</artifactId>
+            <version>5.9.0</version>
         </dependency>
 
         <dependency>
@@ -115,6 +121,7 @@
                             org.glassfish.grizzly.*;resolution:="optional",
                             org.osgi.service.log;resolution:="optional",
                             org.jboss.*;resolution:="optional",
+                            org.eclipse.gemini.blueprint.*;resolution:="optional",
                             *
                         </Import-Package>
 

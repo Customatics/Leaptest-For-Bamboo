@@ -1,7 +1,14 @@
 package com.customatics.leaptest_integration_for_bamboo.impl;
 
 import com.atlassian.bamboo.build.logger.BuildLogger;
+
+import com.atlassian.bamboo.build.test.TestCollationService;
+import com.atlassian.bamboo.build.test.TestCollectionResult;
+import com.atlassian.bamboo.build.test.junit.JunitTestReportCollector;
+import com.atlassian.bamboo.build.test.junit.JunitTestResultsParser;
 import com.atlassian.bamboo.task.TaskContext;
+import com.atlassian.bamboo.utils.SystemProperty;
+
 import com.customatics.leaptest_integration_for_bamboo.model.Case;
 import com.customatics.leaptest_integration_for_bamboo.model.Schedule;
 import com.customatics.leaptest_integration_for_bamboo.model.ScheduleCollection;
@@ -12,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.Response;
+
 
 
 import javax.xml.bind.JAXBContext;
@@ -575,11 +583,19 @@ public final class PluginHandler {
         return isScheduleStillRunning;
     }
 
-    public void createJUnitReport(String JUnitReportFilePath, BuildLogger buildLogger, ScheduleCollection buildResult) throws Exception {
+    public File createJUnitReport(String JUnitReportFilePath, BuildLogger buildLogger, ScheduleCollection buildResult) throws Exception {
         try
         {
             File reportFile = new File(JUnitReportFilePath);
             if(!reportFile.exists()) reportFile.createNewFile();
+
+            //This is required due to problems with Bamboo JUnit Parser
+            //https://jira.atlassian.com/browse/BAM-12979
+            //https://jira.atlassian.com/browse/BAM-12768
+            //buildLogger.addBuildLogEntry(Long.toString(reportFile.lastModified()));
+            reportFile.setLastModified(reportFile.lastModified() - SystemProperty.FS_TIMESTAMP_RESOLUTION_MS.getTypedValue() - 2000);
+            //buildLogger.addBuildLogEntry(Long.toString(reportFile.lastModified()));
+            //buildLogger.addBuildLogEntry(Long.toString(SystemProperty.FS_TIMESTAMP_RESOLUTION_MS.getTypedValue()));
 
             StringWriter writer = new StringWriter();
             JAXBContext context = JAXBContext.newInstance(ScheduleCollection.class);
@@ -598,8 +614,9 @@ public final class PluginHandler {
                 out.close();
             }
 
+            return  reportFile;
         }
-        catch (FileNotFoundException e) {
+        catch ( FileNotFoundException e) {
             buildLogger.addErrorLogEntry(Messages.REPORT_FILE_NOT_FOUND);
             throw new Exception(e);
         } catch (IOException e) {
@@ -609,6 +626,8 @@ public final class PluginHandler {
             buildLogger.addErrorLogEntry(Messages.REPORT_FILE_CREATION_FAILURE);
             throw new Exception(e);
         }
+
+
     }
 
     private boolean isScheduleStillRunning(JsonObject jsonState)
@@ -685,4 +704,6 @@ public final class PluginHandler {
             return "00:00:00.0000000";
 
     }
+
+
 }
