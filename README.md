@@ -12,6 +12,15 @@ Leaptest is a mighty automation testing system and now it can be used for runnin
  - Generate a xml report file in JUnit format
  - Write tests trace to build output log
  - Smart UI
+ 
+# Update 1.2.1:
+ - Support older Bamboo versions from 5.9 (tested on 5.9.7)
+ - Support new bamboo version 6.2 (tested on 6.2.2)
+ - New option added: allows you to pass results automatically to the JUnit parser if you choose such an option. 
+Don't require to add JUnit parser task anymore.  
+WARNING: in older Bamboo versions this option may automatically finish a job after this task!   
+If you have problems with JUnit parser report file detection, this issue may help:  
+https://jira.atlassian.com/browse/BAM-12768
 
 # Installing
 - Use atlassian-sdk maven 3.2.1.
@@ -27,6 +36,8 @@ Leaptest is a mighty automation testing system and now it can be used for runnin
 6. Press button "Select Schedules" to get a list of all available schedules grouped by projects. Select schedules you want to run. Press "Save" button.
 7. Add "JUnit parser" to your plan. Enter JUnit report file name. It MUST be the same you've entered before!
 8. Run your plan and get results. Enjoy!
+
+
 
 # Screenshots
 ![ScreenShot](https://github.com/Customatics/Leaptest-For-Bamboo/blob/master/src/main/resources/images/highlight1.png)
