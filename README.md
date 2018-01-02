@@ -13,14 +13,9 @@ Leaptest is a mighty automation testing system and now it can be used for runnin
  - Write tests trace to build output log
  - Smart UI
  
-# Update 1.2.1:
- - Support older Bamboo versions from 5.9 (tested on 5.9.7)
- - Support new bamboo version 6.2 (tested on 6.2.2)
- - New option added: allows you to pass results automatically to the JUnit parser if you choose such an option. 
-Don't require to add JUnit parser task anymore.  
-WARNING: in older Bamboo versions this option may automatically finish a job after this task!   
-If you have problems with JUnit parser report file detection, this issue may help:  
-https://jira.atlassian.com/browse/BAM-12768
+# Update 1.3.0-beta:
+- For January LEAPTEST release.  
+- LEAPTEST REST API now require Access Key. Relevant functionality has been added.  
 
 # Installing
 - Use atlassian-sdk maven 3.2.1.

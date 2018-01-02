@@ -1,5 +1,6 @@
 
 [@ww.label labelKey="leaptest.address.label" name="address" id="address" required='true'/]
+[@ww.label labelKey="leaptest.accessKey.label" name="accessKey" id="accessKey" required='true' "/]
 [@ww.label labelKey="leaptest.delay.label" name="delay" id="delay" required='false'/]
 [#assign statuslist=context.get("statuses") /]
 [@ww.select cssClass="builderSelectWidget" labelKey='leaptest.doneStatusAs.label' name='doneStatusAs' list=statuslist  id="doneStatusAs" emptyOption='false'/]

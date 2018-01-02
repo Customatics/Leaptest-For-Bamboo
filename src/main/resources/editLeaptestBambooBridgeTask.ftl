@@ -1,5 +1,6 @@
 
 [@ww.textfield labelKey="leaptest.address.label" name="address" id="address" required='true' style="max-width: 350px; "/]
+[@ww.textfield labelKey="leaptest.accessKey.label" name="accessKey" id="accessKey" required='true' style="max-width: 350px; "/]
 [@ww.textfield labelKey="leaptest.delay.label" name="delay" id="delay" required='false' style="width: 80px;"/]
 [#assign statuslist=context.get("statuses") /]
 [@ww.select cssClass="builderSelectWidget" labelKey='leaptest.doneStatusAs.label' name='doneStatusAs' list=statuslist  id="doneStatusAs" emptyOption='false' style="width: 80px;"/]
@@ -86,10 +87,12 @@ fieldArea_schIds.style.display='none';
 
          function GetSch()
          {
+               let address = document.getElementById("address").value;
+               let accessKey = document.getElementById("accessKey").value;
 
-               if(!address.value)
+               if(!address || !accessKey)
                {
-                alert('"Address field is empty! Cannot connect to server!"');
+                alert('"Address field or Access Key field is empty! Cannot connect to Leaptest controller!"');
                }
                else
                {
@@ -98,8 +101,9 @@ fieldArea_schIds.style.display='none';
                     {
 
                           (jQuery).ajax({
-                                url: document.getElementById("address").value + "/api/v1/runSchedules",
+                                url: address + "/api/v1/runSchedules",
                                 type: 'GET',
+                                headers: { 'AccessKey': accessKey, 'Integration':'Bamboo-Integration' },
                                 dataType:"json",
                                 success: function(json)
                                 {
@@ -117,11 +121,11 @@ fieldArea_schIds.style.display='none';
                                     });
 
 
-                                    var schName = new Array();
-                                    var schId = new Array();
-                                    var schProjectId = new Array();
+                                    const schName = new Array();
+                                    const schId = new Array();
+                                    const schProjectId = new Array();
 
-                                    for (var i = 0; i < json.length; i++) {
+                                    for (let i = 0; i < json.length; i++) {
                                         if (json[i].IsDisplayedInScheduleList == true) {
                                          schId.push(json[i].Id);
                                          schName.push(json[i].Title);
@@ -129,18 +133,19 @@ fieldArea_schIds.style.display='none';
                                         }
                                     }
 
-                                    var projects = new Array();
+                                    const projects = new Array();
 
                                     (jQuery).ajax({
-                                        url: document.getElementById("address").value + "/api/v1/Projects",
+                                        url: address + "/api/v1/Projects",
                                         type: 'GET',
+                                        headers: { 'AccessKey': accessKey, 'Integration':'Bamboo-Integration' },
                                         dataType:"json",
                                         success: function(projJson)
                                         {
-                                            for(var i = 0; i < projJson.length; i++)
+                                            for(let i = 0; i < projJson.length; i++)
                                                 projects.push(projJson[i].Title);
 
-                                            for(var i = 0; i < schProjectId.length; i++)
+                                            for(let i = 0; i < schProjectId.length; i++)
                                             {
                                                 for(var j = 0; j < projJson.length; j++)
                                                 {
@@ -152,28 +157,28 @@ fieldArea_schIds.style.display='none';
 
                                             container.innerHTML += '<br>';
 
-                                            var drpdwn = document.createElement('ul');
+                                            let drpdwn = document.createElement('ul');
                                             drpdwn.className = 'ul-treefree ul-dropfree';
 
-                                            for(var i = 0; i < projects.length; i++)
+                                            for(let i = 0; i < projects.length; i++)
                                             {
-                                                var projectli = document.createElement('li');
+                                                const projectli = document.createElement('li');
 
-                                                var drop = document.createElement('div');
+                                                const drop = document.createElement('div');
                                                 drop.class = 'drop';
                                                 drop.style = 'background-position: 0px 0px;';
                                                 projectli.appendChild(drop);
                                                 projectli.innerHTML+=projects[i];
 
-                                                var schul = document.createElement('ul');
+                                                const schul = document.createElement('ul');
                                                 schul.style = 'display:none; font-weight: normal';
 
-                                                for(var j = 0; j < schProjectId.length; j++)
+                                                for(let j = 0; j < schProjectId.length; j++)
                                                 {
                                                     if(projects[i] == schProjectId[j])
                                                     {
-                                                        var schli = document.createElement('li');
-                                                        var chbx = document.createElement('input');
+                                                        let schli = document.createElement('li');
+                                                        let chbx = document.createElement('input');
                                                         chbx.type = 'checkbox';
                                                         chbx.name = schName[j];
                                                         chbx.id = i;
@@ -207,18 +212,17 @@ fieldArea_schIds.style.display='none';
                                          	});
                                          	(jQuery)(".ul-dropfree").find("ul").slideUp(400).parents("li").children("div.drop").css({'background-position':"0 0"});
 
-                                            var TestNames = document.getElementById("schNames");
-                                            var TestIds = document.getElementById("schIds");
+                                            let TestNames = document.getElementById("schNames");
+                                            let TestIds = document.getElementById("schIds");
 
-                                            var boxes = (jQuery)("#MyContainer input:checkbox");
-                                            var existingTests = new Array();
+                                            let boxes = (jQuery)("#MyContainer input:checkbox");
+                                            let existingTests = new Array();
                                             existingTests = TestNames.value.split("\n");
 
                                             if (TestNames.value != null && TestIds.value != null) {
-                                                for (var i = 0; i < existingTests.length; i++) {
+                                                for (let i = 0; i < existingTests.length; i++) {
                                                     for (j = 0; j < boxes.length; j++)
                                                     {
-                                                        console.log(boxes[j].getAttributeNode('name').value)
                                                         if (existingTests[i] == boxes[j].getAttributeNode('name').value)
                                                             (jQuery)(boxes[j]).prop('checked', 'checked');
                                                     }
@@ -227,8 +231,8 @@ fieldArea_schIds.style.display='none';
 
                                             (jQuery)("#MyContainer input:checkbox").on("change", function ()
                                             {
-                                                var NamesArray = new Array();
-                                                var IdsArray = new Array();
+                                                const NamesArray = new Array();
+                                                const IdsArray = new Array();
                                                 for (var i = 0; i < boxes.length; i++)
                                                 {
                                                     var box = boxes[i];

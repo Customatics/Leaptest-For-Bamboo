@@ -47,6 +47,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
 
         //get fields value
         final String address = taskContext.getConfigurationMap().get("address");
+        final String accessKey = taskContext.getConfigurationMap().get("accessKey");
         final String delay = taskContext.getConfigurationMap().get("delay");
         final String doneStatusAs = taskContext.getConfigurationMap().get("doneStatusAs");
         final String report = taskContext.getConfigurationMap().get("report");
@@ -67,7 +68,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
         try
         {
             //Get schedule titles (or/and ids in case of pipeline)
-            schedulesIdTitleHashMap = pluginHandler.getSchedulesIdTitleHashMap(address,rawScheduleList,buildLogger,buildResult,invalidSchedules);
+            schedulesIdTitleHashMap = pluginHandler.getSchedulesIdTitleHashMap(address,accessKey,rawScheduleList,buildLogger,buildResult,invalidSchedules);
             rawScheduleList = null;
 
             if(schedulesIdTitleHashMap.isEmpty())
@@ -92,7 +93,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
                 {
                     schId = iter.next();
                     schTitle = schedulesIdTitleHashMap.get(schId);
-                    RUN_RESULT runResult = pluginHandler.runSchedule(address, schId, schTitle, currentScheduleIndex, buildLogger,  buildResult, invalidSchedules);
+                    RUN_RESULT runResult = pluginHandler.runSchedule(address, accessKey, schId, schTitle, currentScheduleIndex, buildLogger,  buildResult, invalidSchedules);
                     buildLogger.addBuildLogEntry("Current schedule index: " + currentScheduleIndex);
 
                     if (runResult.equals(RUN_RESULT.RUN_SUCCESS)) // if schedule was successfully run
@@ -102,7 +103,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
                         do
                         {
                             Thread.sleep(timeDelay * 1000); //Time delay
-                            isStillRunning = pluginHandler.getScheduleState(address,schId,schTitle,currentScheduleIndex, doneStatusAs,buildLogger, buildResult, invalidSchedules);
+                            isStillRunning = pluginHandler.getScheduleState(address, accessKey, schId,schTitle,currentScheduleIndex, doneStatusAs,buildLogger, buildResult, invalidSchedules);
                             if(isStillRunning) buildLogger.addBuildLogEntry(String.format(Messages.SCHEDULE_IS_STILL_RUNNING, schTitle, schId));
                         }
                         while (isStillRunning);
@@ -180,7 +181,7 @@ public class LeaptestBambooBridgeTask implements TaskType {
         {
             String interruptedExceptionMessage = String.format(Messages.INTERRUPTED_EXCEPTION, e.getMessage());
             buildLogger.addErrorLogEntry(interruptedExceptionMessage);
-            pluginHandler.stopSchedule(address,schId,schTitle, buildLogger);
+            pluginHandler.stopSchedule(address, accessKey, schId,schTitle, buildLogger);
             result = taskResultBuilder.failedWithError().build();
             buildLogger.addErrorLogEntry("ABORTED");
 

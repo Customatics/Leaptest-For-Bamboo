@@ -21,6 +21,7 @@ public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurat
         final Map<String, String> config = super.generateTaskConfigMap(params, previousTaskDefinition);
 
         config.put("address", params.getString("address"));
+        config.put("accessKey",params.getString("accessKey"));
         config.put("delay", params.getString("delay"));
         config.put("doneStatusAs", params.getString("doneStatusAs"));
         config.put("report", params.getString("report"));
@@ -56,6 +57,7 @@ public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurat
 
         Map<String, String> config = taskDefinition.getConfiguration();
         context.put("address", config.get("address"));
+        context.put("accessKey",config.get("accessKey"));
         context.put("delay", config.get("delay"));
         context.put("doneStatusAs", config.get("doneStatusAs"));
         context.put("report", config.get("report"));

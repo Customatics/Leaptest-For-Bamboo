@@ -97,6 +97,7 @@ public final class PluginHandler {
 
     public HashMap<String, String> getSchedulesIdTitleHashMap(
             String leaptestAddress,
+            String accessKey,
             ArrayList<String> rawScheduleList,
             BuildLogger buildLogger,
             ScheduleCollection buildResult,
@@ -113,7 +114,12 @@ public final class PluginHandler {
             try {
 
                 AsyncHttpClient client = new AsyncHttpClient();
-                Response response = client.prepareGet(scheduleListUri).execute().get();
+                Response response = client
+                        .prepareGet(scheduleListUri)
+                        .setHeader("AccessKey", accessKey)
+                        .setHeader("Integration", Messages.INTEGRATION)
+                        .execute()
+                        .get();
                 client = null;
 
                 switch (response.getStatusCode()) {
@@ -152,6 +158,11 @@ public final class PluginHandler {
                                 invalidSchedules.add(new InvalidSchedule(rawSchedule, Messages.NO_SUCH_SCHEDULE));
                         }
                         break;
+
+                    case 406:
+                        String errorMessage406 = String.format(Messages.ERROR_CODE_MESSAGE, response.getStatusCode(), response.getStatusText());
+                        errorMessage406 += String.format("\n%1$s", Messages.WRONG_ACCESS_KEY);
+                        throw new Exception(errorMessage406);
 
                     case 445:
                         String errorMessage445 = String.format(Messages.ERROR_CODE_MESSAGE, response.getStatusCode(), response.getStatusText());
@@ -209,6 +220,7 @@ public final class PluginHandler {
 
     public RUN_RESULT runSchedule(
             String leaptestAddress,
+            String accessKey,
             String scheduleId,
             String scheduleTitle,
             int currentScheduleIndex,
@@ -225,7 +237,13 @@ public final class PluginHandler {
             try {
 
                 AsyncHttpClient client = new AsyncHttpClient();
-                Response response = client.preparePut(uri).setBody("").execute().get();
+                Response response = client
+                        .preparePut(uri)
+                        .setHeader("AccessKey", accessKey)
+                        .setHeader("Integration", Messages.INTEGRATION)
+                        .setBody("")
+                        .execute()
+                        .get();
                 client = null;
 
                 switch (response.getStatusCode()) {
@@ -241,6 +259,11 @@ public final class PluginHandler {
                         String errorMessage404 = String.format(Messages.ERROR_CODE_MESSAGE, response.getStatusCode(), response.getStatusText());
                         errorMessage404 += String.format("\n%1$s", String.format(Messages.NO_SUCH_SCHEDULE_WAS_FOUND, scheduleTitle, scheduleId));
                         throw new Exception(errorMessage404);
+
+                    case 406:
+                        String errorMessage406 = String.format(Messages.ERROR_CODE_MESSAGE, response.getStatusCode(), response.getStatusText());
+                        errorMessage406 += String.format("\n%1$s", Messages.WRONG_ACCESS_KEY);
+                        throw new Exception(errorMessage406);
 
                     case 444:
                         String errorMessage444 = String.format(Messages.ERROR_CODE_MESSAGE, response.getStatusCode(), response.getStatusText());
@@ -318,7 +341,7 @@ public final class PluginHandler {
         return isSuccessfullyRun;
     }
 
-    public boolean stopSchedule(String leaptestAddress, String scheduleId, String scheduleTitle, BuildLogger buildLogger)
+    public boolean stopSchedule(String leaptestAddress, String accessKey, String scheduleId, String scheduleTitle, BuildLogger buildLogger)
     {
         boolean isSuccessfullyStopped = false;
 
@@ -327,7 +350,13 @@ public final class PluginHandler {
         try
         {
             AsyncHttpClient client = new AsyncHttpClient();
-            Response response = client.preparePut(uri).setBody("").execute().get();
+            Response response = client
+                    .preparePut(uri)
+                    .setHeader("AccessKey", accessKey)
+                    .setHeader("Integration", Messages.INTEGRATION)
+                    .setBody("")
+                    .execute()
+                    .get();
             client = null;
 
             switch (response.getStatusCode())
@@ -350,11 +379,11 @@ public final class PluginHandler {
         {
             return isSuccessfullyStopped;
         }
-
     }
 
     public boolean getScheduleState(
             String leaptestAddress,
+            String accessKey,
             String scheduleId,
             String scheduleTitle,
             int currentScheduleIndex,
@@ -372,7 +401,12 @@ public final class PluginHandler {
             try {
 
                 AsyncHttpClient client = new AsyncHttpClient();
-                Response response = client.prepareGet(uri).execute().get();
+                Response response = client
+                        .prepareGet(uri)
+                        .setHeader("AccessKey", accessKey)
+                        .setHeader("Integration", Messages.INTEGRATION)
+                        .execute()
+                        .get();
                 client = null;
 
                 switch (response.getStatusCode()) {
@@ -391,7 +425,6 @@ public final class PluginHandler {
 
                             /////////Schedule Info
                             JsonElement jsonLastRun = jsonState.get("LastRun");
-
 
                             JsonObject lastRun = jsonLastRun.getAsJsonObject();
 
@@ -497,6 +530,11 @@ public final class PluginHandler {
                         String errorMessage404 = String.format(Messages.ERROR_CODE_MESSAGE, response.getStatusCode(), response.getStatusText());
                         errorMessage404 += String.format("\n%1$s", String.format(Messages.NO_SUCH_SCHEDULE_WAS_FOUND, scheduleTitle, scheduleId));
                         throw new Exception(errorMessage404);
+
+                    case 406:
+                        String errorMessage406 = String.format(Messages.ERROR_CODE_MESSAGE, response.getStatusCode(), response.getStatusText());
+                        errorMessage406 += String.format("\n%1$s", Messages.WRONG_ACCESS_KEY);
+                        throw new Exception(errorMessage406);
 
                     case 445:
                         String errorMessage445 = String.format(Messages.ERROR_CODE_MESSAGE, response.getStatusCode(), response.getStatusText());
@@ -626,8 +664,6 @@ public final class PluginHandler {
             buildLogger.addErrorLogEntry(Messages.REPORT_FILE_CREATION_FAILURE);
             throw new Exception(e);
         }
-
-
     }
 
     private boolean isScheduleStillRunning(JsonObject jsonState)
