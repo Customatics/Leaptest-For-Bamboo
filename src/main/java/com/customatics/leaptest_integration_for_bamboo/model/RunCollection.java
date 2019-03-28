@@ -1,14 +1,13 @@
 package com.customatics.leaptest_integration_for_bamboo.model;
 
-import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
 
+import javax.xml.bind.annotation.*;
+;import java.util.ArrayList;
 
 @XmlRootElement(name = "testsuites")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ScheduleCollection
+public class RunCollection
 {
-
     private int totalTests = 0;
 
     private int passedTests = 0;
@@ -21,12 +20,12 @@ public class ScheduleCollection
 
     private double totalTime = 0;
     @XmlElement(name = "testsuite")
-    public ArrayList<Schedule> Schedules;
+    public ArrayList<LeapworkRun> leapworkRuns;
 
 
-    public ScheduleCollection()
+    public RunCollection()
     {
-        Schedules = new ArrayList<Schedule>();
+        leapworkRuns = new ArrayList<LeapworkRun>();
 
         totalTests = 0;
         passedTests = 0;
@@ -43,17 +42,17 @@ public class ScheduleCollection
     @XmlAttribute(name = "tests")
     public int    getPassedTests()              { return passedTests; }
     public void   setPassedTests(int tests)     { passedTests = tests; }
-    public void   addPassedTests(int tests)     { passedTests += tests; }
+    public void   addPassedTests (int tests)    { passedTests += tests; }
 
     @XmlAttribute(name = "failures")
-    public int    getFailedTests()              { return failedTests;}
+    public int    getFailedTests()              { return failedTests; }
     public void   setFailedTests(int failures)  { failedTests = failures; }
     public void   addFailedTests (int failures) { failedTests += failures; }
 
     @XmlAttribute(name = "errors")
     public int    getErrors()                   { return  errors; }
     public void   setErrors(int errors)         { this.errors = errors; }
-    public void   addErrors(int errors)         { this.errors += errors; }
+    public void   addErrors (int errors)        { this.errors += errors; }
 
     @XmlAttribute(name = "disabled")
     public int    getDisabled()                 { return disabled; }
@@ -62,10 +61,5 @@ public class ScheduleCollection
     @XmlAttribute(name = "time")
     public double getTotalTime()                { return totalTime; }
     public void   setTotalTime(double time)     { totalTime = time; }
-    public void   addTotalTime(double time)     { totalTime += time; }
-
-
+    public void   addTotalTime (double time)    { totalTime += time; }
 }
-
-
-

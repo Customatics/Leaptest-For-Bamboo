@@ -12,7 +12,7 @@
 
     <resource type="i18n" name="i18n" location="leaptest_integration_for_bamboo"/>
 
-    <taskType key="LeaptestBambooBridgeTask" name="Leaptest Integration"
+    <taskType key="LeaptestBambooBridgeTask" name="Leapwork Integration"
               class="com.customatics.leaptest_integration_for_bamboo.impl.LeaptestBambooBridgeTask">
         <description>Choose, Run and get schedules' state
         </description>

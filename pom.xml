@@ -7,28 +7,31 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.customatics</groupId>
     <artifactId>leaptest-integration-for-bamboo</artifactId>
-    <version>1.2.2</version>
+    <version>3.0.0</version>
 
     <organization>
         <name>Customatics</name>
         <url>http://customatics.com/</url>
     </organization>
 
-    <name>Leaptest Integration</name>
-    <description>Integrates Leaptest codeless test automation with Bamboo. Run tests, get results, generate reports.</description>
+    <name>Leapwork Integration</name>
+    <description>Integrates Leapwork codeless test automation with Bamboo. Run tests, get results, generate reports.</description>
     <packaging>atlassian-plugin</packaging>
 
     <properties>
-        <bamboo.version>5.13.2</bamboo.version>
-        <bamboo.data.version>5.13.2</bamboo.data.version>
-        <amps.version>6.2.11</amps.version>
-        <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
+         <bamboo.version>6.8.0</bamboo.version>
+        <bamboo.data.version>6.8.0</bamboo.data.version>
+        <amps.version>8.0.0</amps.version>
+        <plugin.testrunner.version>2.0.1</plugin.testrunner.version>
         <atlassian.spring.scanner.version>1.2.13</atlassian.spring.scanner.version>
-        <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
+        <!-- This property ensures consistency between the key in atlassian-plugin.xml and the OSGi bundle's key. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
-    <dependencies>
+     <dependencies>
         <dependency>
             <groupId>com.atlassian.bamboo</groupId>
             <artifactId>atlassian-bamboo-web</artifactId>
@@ -40,21 +43,8 @@
             <groupId>com.atlassian.plugin</groupId>
             <artifactId>atlassian-spring-scanner-annotation</artifactId>
             <version>${atlassian.spring.scanner.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.plugin</groupId>
-            <artifactId>atlassian-spring-scanner-runtime</artifactId>
-            <version>${atlassian.spring.scanner.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.bamboo.plugins.testresultparser</groupId>
-            <artifactId>atlassian-bamboo-plugin-testresultparser</artifactId>
-            <version>5.9.0</version>
-        </dependency>
+            <scope>provided</scope>
+        </dependency>     
 
         <dependency>
             <groupId>javax.inject</groupId>
@@ -71,9 +61,10 @@
         </dependency>
 
         <dependency>
-            <groupId>com.ning</groupId>
-            <artifactId>async-http-client</artifactId>
-            <version>1.4.0</version>
+            <groupId>com.atlassian.sal</groupId>
+            <artifactId>sal-api</artifactId>
+            <version>3.0.8</version>
+            <scope>provided</scope> <!-- Uses the application's SAL instead of bundling it into the plugin. -->
         </dependency>
 
         <!-- WIRED TEST RUNNER DEPENDENCIES -->
@@ -92,27 +83,43 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.0</version>
+            <version>2.2.2-atlassian-1</version>
+            <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.ning</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>1.4.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.bamboo.plugins.testresultparser</groupId>
+            <artifactId>atlassian-bamboo-plugin-testresultparser</artifactId>
+            <version>6.6.3</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
+             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-bamboo-plugin</artifactId>
+                <artifactId>bamboo-maven-plugin</artifactId>
                 <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <configuration>
+
                     <productVersion>${bamboo.version}</productVersion>
                     <productDataVersion>${bamboo.data.version}</productDataVersion>
                     <enableQuickReload>true</enableQuickReload>
-                    <enableFastdev>false</enableFastdev>
 
-
+                    <!-- See here for an explanation of default instructions: -->
+                    <!-- https://developer.atlassian.com/docs/advanced-topics/configuration-of-instructions-in-atlassian-plugins -->
                     <instructions>
-                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
+                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>                     
 
+                        <!-- Add package import here -->
                         <Import-Package>
                             org.springframework.osgi.*;resolution:="optional",
                             com.ning.http.client.*;resolution:="optional",
@@ -120,7 +127,8 @@
                             com.google.protobuf.*;resolution:="optional",
                             org.glassfish.grizzly.*;resolution:="optional",
                             org.osgi.service.log;resolution:="optional",
-                            org.jboss.*;resolution:="optional",
+                            com.sun.org.apache.xerces.internal.dom;resolution:="optional",
+                            com.atlassian.util.concurrent.NotNull;resolution:="optional",
                             org.eclipse.gemini.blueprint.*;resolution:="optional",
                             *
                         </Import-Package>
@@ -156,9 +164,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

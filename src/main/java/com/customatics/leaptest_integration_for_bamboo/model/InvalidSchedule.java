@@ -1,10 +1,7 @@
 package com.customatics.leaptest_integration_for_bamboo.model;
 
-/**
- * Created by User on 11.06.2017.
- */
-public final class InvalidSchedule {
-
+public class InvalidSchedule
+{
     private String name;
     private String stackTrace;
 

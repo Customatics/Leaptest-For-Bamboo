@@ -3,44 +3,46 @@ package com.customatics.leaptest_integration_for_bamboo.impl;
 import com.atlassian.bamboo.collections.ActionParametersMap;
 import com.atlassian.bamboo.task.AbstractTaskConfigurator;
 import com.atlassian.bamboo.task.TaskDefinition;
-import com.atlassian.struts.TextProvider;
+import com.atlassian.bamboo.util.TextProviderUtils;
 import com.atlassian.util.concurrent.NotNull;
-import com.atlassian.util.concurrent.Nullable;
+
 
 import java.util.ArrayList;
 import java.util.Map;
 
-
 public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurator {
 
-    private TextProvider textProvider;
+    private TextProviderUtils textProvider;
 
     @Override
-    public Map<String, String> generateTaskConfigMap(@NotNull final ActionParametersMap params, @Nullable final TaskDefinition previousTaskDefinition)
+    public Map<String, String> generateTaskConfigMap(@NotNull final ActionParametersMap params, @NotNull final TaskDefinition previousTaskDefinition)
     {
         final Map<String, String> config = super.generateTaskConfigMap(params, previousTaskDefinition);
 
-        config.put("address", params.getString("address"));
-        config.put("delay", params.getString("delay"));
-        config.put("doneStatusAs", params.getString("doneStatusAs"));
-        config.put("report", params.getString("report"));
-        config.put("autoReport", Boolean.toString(params.getBoolean("autoReport")));
-        config.put("schNames", params.getString("schNames"));
-        config.put("schIds", params.getString("schIds"));
-
+        config.put("leapworkHostname", params.getString("leapworkHostname"));
+        config.put("leapworkPort", params.getString("leapworkPort"));
+        config.put("leapworkAccessKey", params.getString("leapworkAccessKey"));
+        config.put("leapworkDelay", params.getString("leapworkDelay"));
+        config.put("leapworkDoneStatusAs", params.getString("leapworkDoneStatusAs"));
+        config.put("leapworkReport", params.getString("leapworkReport"));
+        config.put("leapworkAutoReport", Boolean.toString(params.getBoolean("leapworkAutoReport")));
+        config.put("leapworkSchNames", params.getString("leapworkSchNames"));
+        config.put("leapworkSchIds", params.getString("leapworkSchIds"));
+        config.put("leapworkScheduleVariables", params.getString("leapworkScheduleVariables"));
+        config.put("leapworkWritePassedFlowKeyFrames", params.getString("leapworkWritePassedFlowKeyFrames"));
 
         return config;
     }
-
 
     @Override
     public void populateContextForCreate(@NotNull final Map<String, Object> context)
     {
         super.populateContextForCreate(context);
 
-        context.put("delay", "3");
-        context.put("report","report.xml");
-        context.put("autoReport", Boolean.toString(false));
+        context.put("leapworkPort", "9001");
+        context.put("leapworkDelay", "3");
+        context.put("leapworkReport","report.xml");
+        context.put("leapworkAutoReport", Boolean.toString(false));
 
 
         ArrayList<String> statuses = new ArrayList<String>();
@@ -55,13 +57,17 @@ public class LeaptestBambooBridgeTaskConfigurator extends AbstractTaskConfigurat
         super.populateContextForEdit(context, taskDefinition);
 
         Map<String, String> config = taskDefinition.getConfiguration();
-        context.put("address", config.get("address"));
-        context.put("delay", config.get("delay"));
-        context.put("doneStatusAs", config.get("doneStatusAs"));
-        context.put("report", config.get("report"));
-        context.put("autoReport", Boolean.valueOf(config.get("autoReport")));
-        context.put("schNames", config.get("schNames"));
-        context.put("schIds", config.get("schIds")); // for debug only!
+        context.put("leapworkHostname", config.get("leapworkHostname"));
+        context.put("leapworkPort",config.get("leapworkPort"));
+        context.put("leapworkAccessKey", config.get("leapworkAccessKey"));
+        context.put("leapworkDelay", config.get("leapworkDelay"));
+        context.put("leapworkDoneStatusAs", config.get("leapworkDoneStatusAs"));
+        context.put("leapworkReport", config.get("leapworkReport"));
+        context.put("leapworkAutoReport", Boolean.valueOf(config.get("leapworkAutoReport")));
+        context.put("leapworkSchNames", config.get("leapworkSchNames"));
+        context.put("leapworkSchIds", config.get("leapworkSchIds")); // for debug only!
+        context.put("leapworkScheduleVariables", config.get("leapworkScheduleVariables"));
+        context.put("leapworkWritePassedFlowKeyFrames", config.get("leapworkWritePassedFlowKeyFrames"));
 
         ArrayList<String> statuses = new ArrayList<String>();
         statuses.add("Failed");
