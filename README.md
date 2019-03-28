@@ -19,7 +19,7 @@ LEAPWORK is a mighty automation testing system and now it can be used for runnin
 - Or simply install jar-file from the "target" folder: Manage apps -> Upload app -> Choose that jar-file -> Press Upload
 
 # Update 3.0.0
-- For LEAPWORK version 2018.2.283
+- For LEAPWORK version 2018.2
 - Removed "Access key" info from console log.
 - Fixed bug when schedules are executing in non-ordered way.
 - Now it is possible to insert a list of schedules to "Schedule Names" text box. List of names must be new line or comma separated.
